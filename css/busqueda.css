@@ -1,0 +1,106 @@
+.caja-login {
+    background-color: #F2F2F2;
+    border: 1px solid #707070;
+    max-width: 650px;
+    width: 90%;
+    margin: 0 auto;
+    min-height: 300px;
+    -webkit-box-shadow: 0px 25px 35px -17px rgba(0,0,0,0.56);
+    -moz-box-shadow: 0px 25px 35px -17px rgba(0,0,0,0.56);
+    box-shadow: 0px 25px 35px -17px rgba(0,0,0,0.56);
+    padding: 3rem;
+}
+.login,
+.crear-cuenta {
+    background: #455A64;
+}
+
+.contenedor-formulario {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.contenedor-formulario h1 {
+    text-align: center;
+    color: white;
+}
+.contenedor-formulario h1  span{
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+.contenedor-formulario p {
+    text-align: center;
+    color: white;
+    font-size: 1.4rem;
+}
+
+.campo {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+.campo label {
+    flex: 0 0 100px;
+    text-align: right;
+    padding-right: 1rem;
+}
+.campo input[type="email"],
+.campo input[type="text"],
+.campo input[type="password"] {
+    height: 3rem;
+    border: 0;
+    flex: 1;
+    border: 1px solid #455A64;
+    border-radius: 5rem;
+    padding-left: 2rem;
+    color: black;
+}
+.campo.acciones {
+    justify-content: space-between;
+}
+.enviar {
+    justify-content: flex-end;
+ }
+ 
+.boton {
+    background-color: #FDD835;
+    text-align: center;
+    transition: background-color .5s ease-in-out;
+    padding: 2rem;
+    text-transform: uppercase;
+    border: none;
+    font-weight: 900;
+    width: auto;
+    margin:0  auto;
+
+    display: flex;
+    align-items: center;
+    line-height: 0;
+    
+}
+.boton span {
+    font-size: 2.2rem;
+    margin-left: 20px;
+}
+
+.boton:hover {
+    cursor: pointer;
+    background-color: rgb(219, 184, 29)!important;
+}
+.boton.eliminar {
+    margin-top: 1rem;
+    float: right;
+    background-color: red!important;
+    color: white;
+}
+.error {
+    background-color: #FF9185;
+    font-size: 12px;
+    padding: 10px;
+}
+.correcto {
+    background-color: #a0dea7;
+    font-size: 12px;
+    padding: 10px;
+}

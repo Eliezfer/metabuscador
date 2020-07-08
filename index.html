@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador</title>
+    <link rel="stylesheet" href="css/busqueda.css">
+    <script src="js/validacion.js"></script>
+</head>
+<body class="login">
+    <div class="contenedor-formulario">
+        <h1>Búsqueda</h1>
+    <form class="caja caja-login" action="busqueda.php" method="post">
+        <div class="campo">
+            <label for="keyword"> Nombre : </label>
+          <input  type="text" id="keyword" name="keyword" required >
+        </div>
+        <h4>Oredenar por:</h4>
+        <input type="radio" name="filtro" value="titulo"><label>titulo</label>
+        <input type="radio" name="filtro" value="fecha"><label>fecha</label>
+        <div class="campo enviar">
+            <button class="boton" onsumbit="return hola()"  type="submit">Buscar</button>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>
