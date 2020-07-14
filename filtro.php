@@ -71,28 +71,51 @@ function estandarizarRecursos($recursos_redi, $recursos_agora, $bolsa)
     return $recursos;
 }
 
-function imprimirRecursos($recursos, $numRecurRedi,  $numRecurAgora, $filtro){
-    ?>
+function imprimirRecursos($recursos, $numRecurRedi,  $numRecurAgora)
+{
+?>
+
     <body class="login">
+        
         <div class="contenedor-formulario">
-            <h1>Artículos encontrados por <?php  echo $filtro; ?>  </h1>
-            <h1><span>REDIS: <?php  echo $numRecurRedi; ?> <span> </h1>
-            <h1><span>AGORA: <?php  echo $numRecurAgora; ?> <span> </h1>
+            <h1>Artículos encontrados</h1>
+            <h1><span>REDIS: <?php echo $numRecurRedi; ?> <span> </h1>
+            <h1><span>AGORA: <?php echo $numRecurAgora; ?> <span> </h1>
             <div class="listado-pendientes">
-                <ol>
-                <?php 
-                    foreach ($recursos as $r) {
-                ?> 
-                    <li >
-                        <?php  echo $r->titulo?>
-                        <strong><?php echo "   ".$r->fecha;  ?></strong>
-                    </li>
-                    <?php
-                    }
-                    ?>
-                </ol>
+                <table id="domainsTable" class="tablesorter">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Fecha</th>
+                            <th>TF-IDF</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                            <?php
+                            foreach ($recursos as $r) {
+                            ?>
+                                <tr>
+                                    <td><?php echo $r->titulo ?></td>
+                                   <td> <strong><?php echo $r->fecha;  ?></strong></td>
+                                   <td> <strong><?php echo $r->similitud;  ?></strong></td>
+                                
+                            <?php
+                            }
+                            ?>
+                        
+                    </tbody>
+
+                </table>
             </div>
         </div>
+        <script>
+    $(document).ready(function() 
+        { 
+            $("#domainsTable").tablesorter({sortList: [[3,1],[2,0]]}); 
+        } 
+    );
+    </script>
     </body>
-    <?php
+<?php
 }
