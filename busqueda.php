@@ -1,6 +1,7 @@
 <?php
 
-require("recurso.php");
+require("coneccion.php");
+require("filtro.php");
 
 $keyword = "";
 
@@ -12,25 +13,18 @@ if (isset($_REQUEST["keyword"])) {
 $url_redisw = "http://redisw.uady.mx/api/busqueda-movil";
 $url_agora = "http://www.agora.uady.mx/recurso/ajax/buscar";
 
-//header de la consulta redisw
-$http_header = array(
-    'Content-Type' => 'application/x-www-form-urlencoded',
-);
-
 //body de la consulta redis 
-$body_redisw = array(
-    'consulta' => $keyword
-);
+$body_redisw= array('consulta' => $keyword);
 
 //body de la consulta agora
-$body_agora = array(
-    'cadena' => $keyword
-);
+$body_agora= array('cadena' => $keyword);
+
+
 
 //hacer consulta
-$response_redisw = request($url_redisw, $http_header, $body_redisw);
-$recursos_redi = $response_redisw->response->docs;
-$response_agora = request($url_agora, $http_header, $body_agora);
+$response_redisw= request($url_redisw, $body_redisw);
+$recursos_redi= $response_redisw->response->docs;
+$response_agora = request($url_agora, $body_agora);
 
 ?>
 <!DOCTYPE html>
@@ -47,157 +41,29 @@ $response_agora = request($url_agora, $http_header, $body_agora);
     <link rel="stylesheet" href="./themes/blue/style.css" type="text/css" media="print, projection, screen" />
 </head>
 <?php
+$bolsa = generarBolsaDePalabras($keyword);
+$recursos =  estandarizarRecursos($recursos_redi, $response_agora, $bolsa);
 
+$bolsaIDF = generarBolsadIDF($bolsa, $recursos);
 
-if (isset($_POST['filtro'])) {
-    $recursos = array();
+foreach ($recursos as $rec) {
+    $rec->generarBolsaTF_IDF($bolsaIDF);
+}
+
+if(isset($_POST['filtro'])){
     $filtro = $_POST['filtro'];
-    foreach ($recursos_redi as $recurso) {
-        $doc = json_decode(json_encode($recurso), true);
-        $fecha = array_pop($doc['dc.date']);
-        $recurso_obj = new recurso($doc['dc.title'][0], $fecha, $doc['author'], $doc['dc.identifier.uri']);
-        array_push($recursos, $recurso_obj);
-    }
-    foreach ($response_agora as $doc) {
-        $recurso_obj = new recurso($doc->titulo, $doc->fecha_registro, $doc->nombre . " " . $doc->apellido, $doc->ubicacion);
-        array_push($recursos, $recurso_obj);
-    }
-    if ($filtro == "titulo") {
+    if ($filtro=="titulo") {
         usort($recursos, "cmpByTitle");
     }
     if ($filtro == "fecha") {
         usort($recursos, "cmpByDate");
     }
     imprimirRecursos($recursos, count($recursos_redi), count($response_agora), $filtro);
-} else {
-?>
+}
+else{
+    
+    usort($recursos, "cmbByFrecuencia");
 
-
-    <body class="login">
-        <div class="contenedor-formulario">
-            <h1>Artículos encontrados en REDISW</h1>
-            <div class="listado-pendientes">
-
-                <ol>
-                    <?php
-                    foreach ($response_redisw->response->docs as $doc) {
-                    ?>
-                        <li>
-                            <?php echo $doc->title[0]; ?>
-                        </li>
-
-                    <?php
-                    }
-                    ?>
-                </ol>
-
-            </div>
-        </div>
-
-        <div class="contenedor-formulario">
-            <h1>Artículos encontrados en AGORA</h1>
-            <div class="listado-pendientes">
-
-                <ol>
-                    <?php
-                    if (!$response_agora) {
-                        echo "No se encontraron resultados";
-                    }
-                    foreach ($response_agora as $doc) {
-                    ?>
-                        <li>
-                            <?php echo $doc->titulo; ?>
-                        </li>
-
-                    <?php
-                    }
-                    ?>
-                </ol>
-            </div>
-        </div>
-
-    </body>
-
-<?php
+    imprimirRecursos($recursos, count($recursos_redi), count($response_agora), 'frecuencia');
 }
 
-function request($url, $http_header, $body)
-{
-    $jsonObj = null;
-    $ch = curl_init();
-    curl_setopt_array($ch, array(
-        CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_URL => $url,
-        CURLOPT_HTTPHEADER => $http_header,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => $body
-    ));
-    if (!$result = curl_exec($ch)) {
-        print($ch);
-        die('Error: "' . curl_error($ch) . '" - Code: ' . curl_errno($ch));
-    } else {
-        $jsonObj = json_decode($result);
-    }
-    curl_close($ch);
-    return $jsonObj;
-}
-
-function cmpByTitle($a, $b)
-{
-    $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a->titulo);
-    $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b->titulo);
-    return strcmp($at, $bt);
-}
-
-function cmpByDate($a, $b)
-{
-    return strcmp($a->fecha, $b->fecha);
-}
-
-function imprimirRecursos($recursos, $numRecurRedi,  $numRecurAgora, $filtro)
-{
-?>
-
-    <body class="login">
-        
-        <div class="contenedor-formulario">
-            <h1>Artículos encontrados por <?php echo $filtro; ?> </h1>
-            <h1><span>REDIS: <?php echo $numRecurRedi; ?> <span> </h1>
-            <h1><span>AGORA: <?php echo $numRecurAgora; ?> <span> </h1>
-            <div class="listado-pendientes">
-                <table id="domainsTable" class="tablesorter">
-                    <thead>
-                        <tr>
-                            <th>Título</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                            <?php
-                            foreach ($recursos as $r) {
-                            ?>
-                                <tr>
-                                    <td><?php echo $r->titulo ?></td>
-                                   <td> <strong><?php 
-                                    echo $r->fecha;  ?></strong></td>
-                                
-                            <?php
-                            }
-                            ?>
-                        
-                    </tbody>
-
-                </table>
-            </div>
-        </div>
-        <script>
-    $(document).ready(function() 
-        { 
-            $("#domainsTable").tablesorter({sortList: [[3,1],[2,0]]}); 
-        } 
-    );
-    </script>
-    </body>
-<?php
-}
