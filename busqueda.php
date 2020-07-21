@@ -44,6 +44,11 @@ $response_agora = request($url_agora, $body_agora);
 $bolsa = generarBolsaDePalabras($keyword);
 $recursos =  estandarizarRecursos($recursos_redi, $response_agora, $bolsa);
 
+$bolsaIDF = generarBolsadIDF($bolsa, $recursos);
+
+foreach ($recursos as $rec) {
+    $rec->generarBolsaTF_IDF($bolsaIDF);
+}
 
 if(isset($_POST['filtro'])){
     $filtro = $_POST['filtro'];
@@ -56,10 +61,6 @@ if(isset($_POST['filtro'])){
     imprimirRecursos($recursos, count($recursos_redi), count($response_agora), $filtro);
 }
 else{
-    $bolsaIDF = generarBolsadIDF($bolsa, $recursos);
-    foreach ($recursos as $rec) {
-        $rec->generarBolsaTF_IDF($bolsaIDF);
-    }
     
     usort($recursos, "cmbByFrecuencia");
 
